@@ -24,7 +24,7 @@ function bl64_cryp_run_gpg() {
     bl64_check_parameters_none "$#" &&
     bl64_check_command "$BL64_CRYP_CMD_GPG" || return $?
 
-  bl64_msg_lib_verbose_is_enabled && verbosity='--verbose'
+  bl64_msg_app_detail_is_enabled && verbosity='--verbose'
 
   bl64_dbg_lib_trace_start
   # shellcheck disable=SC2086
@@ -143,7 +143,7 @@ function bl64_cryp_gpg_key_is_armored() {
   bl64_txt_run_grep \
     $BL64_TXT_SET_GREP_QUIET \
     'BEGIN PGP PUBLIC KEY BLOCK' \
-    "$key_file" || return $BL64_LIB_ERROR_IS_NOT
+    "$key_file" || return "$BL64_LIB_ERROR_IS_NOT"
 }
 
 #######################################

@@ -1,14 +1,10 @@
 ---
-# template: 3.8.0
-name: "Test/TestManSH/MongoDB"
+# template: 1.4.0
+name: "Lint/ShellCheck"
 
 env:
   DEV_CICD_DEBUG: "NONE"
   BL64_LIB_CICD: "YES"
-
-concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
-  cancel-in-progress: true
 
 # yamllint disable-line rule:truthy
 on:
@@ -21,17 +17,11 @@ on:
       - "feature/**"
       - "release/**"
     paths:
-      - "src/*-mdb-*"
-      - "test/batscore/mongodb/**"
+      - "src/**"
 
 jobs:
-  test-testmansh-mongodb:
+  lint-shellcheck:
     runs-on: "ubuntu-latest"
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - "MONGODB"
     steps:
 
       - name: "Check out repository code"
@@ -43,24 +33,19 @@ jobs:
           path: |
             ./lib/bl64
             ./lib/inst64
-            ./lib/testmansh
+            ./lib/shellcheck
           key: "dev-tools"
 
       - name: "Download tools"
         run: |
           ./bin/dev-lib-base &&
-          ./bin/dev-lib-testmansh
+          ./bin/dev-lib-shellcheck
 
-
-      - name: "Prepare for testing"
+      - name: "Prepare for linting"
         run : |
           ./bin/dev-build-project &&
           ./bin/dev-prep-project
 
-      - name: "Run tests"
-        shell: 'script -q -e -c "bash {0}"'
-        run: |
-          source ./bin/dev-set &&
-          source ./bin/dev-env-project &&
-          ./bin/dev-test-testmansh "$DEV_TEST_TESTMANSH_CONTAINER_${{matrix.target}}" "$DEV_TEST_TESTMANSH_CASES_MONGODB"
+      - name: "Run Linter"
+        run: "./bin/dev-lint-shellcheck"
 ...

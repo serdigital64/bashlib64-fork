@@ -496,7 +496,7 @@ function bl64_fs_file_merge() {
     bl64_fs_file_remove "$destination"
   fi
 
-  return $status
+  return "$status"
 }
 
 #######################################
@@ -716,11 +716,11 @@ function bl64_fs_cleanup_tmps() {
 
   target='/tmp'
   bl64_msg_show_lib_subtask "clean up OS temporary files (${target})"
-  bl64_fs_path_remove -- ${target}/[[:alnum:]]*
+  bl64_fs_path_remove -- "${target}"/[[:alnum:]]*
 
   target='/var/tmp'
   bl64_msg_show_lib_subtask "clean up OS temporary files (${target})"
-  bl64_fs_path_remove -- ${target}/[[:alnum:]]*
+  bl64_fs_path_remove -- "${target}"/[[:alnum:]]*
   return 0
 }
 
@@ -743,7 +743,7 @@ function bl64_fs_cleanup_logs() {
 
   if [[ -d "$target" ]]; then
     bl64_msg_show_lib_subtask "clean up OS logs (${target})"
-    bl64_fs_path_remove ${target}/[[:alnum:]]*
+    bl64_fs_path_remove "${target}"/[[:alnum:]]*
   fi
   return 0
 }
@@ -767,7 +767,7 @@ function bl64_fs_cleanup_caches() {
 
   if [[ -d "$target" ]]; then
     bl64_msg_show_lib_subtask "clean up OS cache contents (${target})"
-    bl64_fs_path_remove ${target}/[[:alnum:]]*
+    bl64_fs_path_remove "${target}"/[[:alnum:]]*
   fi
   return 0
 }
@@ -907,7 +907,7 @@ function bl64_fs_path_archive() {
   bl64_msg_show_lib_subtask "backup source path ([${source}]->[${backup}])"
   if ! bl64_fs_run_mv "$source" "$backup"; then
     bl64_msg_show_lib_error "unable to archive source path ($source)"
-    return $BL64_LIB_ERROR_TASK_BACKUP
+    return "$BL64_LIB_ERROR_TASK_BACKUP"
   fi
 
   return 0
@@ -955,7 +955,7 @@ function bl64_fs_path_recover() {
     bl64_msg_show_lib_subtask "restore original path from backup ([${backup}]->[${source}])"
     # shellcheck disable=SC2086
     bl64_fs_run_mv "$backup" "$source" ||
-      return $BL64_LIB_ERROR_TASK_RESTORE
+      return "$BL64_LIB_ERROR_TASK_RESTORE"
   fi
 }
 
@@ -1136,7 +1136,7 @@ function bl64_fs_set_umask() {
   bl64_dbg_lib_show_function "$@"
   local permissions="${1:-${BL64_FS_UMASK_RW_USER}}"
 
-  bl64_msg_show_lib_subtask "temporary change current script umask (${permissions})"
+  bl64_dbg_lib_show_comments "temporary change current script umask (${permissions})"
   umask -S "$permissions" >/dev/null
 }
 
@@ -1251,7 +1251,7 @@ function bl64_fs_rm_tmpdir() {
 
   if [[ "$tmpdir" != ${BL64_FS_PATH_TMP}/${BL64_FS_TMP_PREFIX}-*.* ]]; then
     bl64_msg_show_lib_error "provided directory was not created by bl64_fs_create_tmpdir (${tmpdir})"
-    return $BL64_LIB_ERROR_TASK_FAILED
+    return "$BL64_LIB_ERROR_TASK_FAILED"
   fi
 
   bl64_fs_path_remove "$tmpdir"
@@ -1279,7 +1279,7 @@ function bl64_fs_rm_tmpfile() {
 
   if [[ "$tmpfile" != ${BL64_FS_PATH_TMP}/${BL64_FS_TMP_PREFIX}-*.* ]]; then
     bl64_msg_show_lib_error "provided directory was not created by bl64_fs_create_tmpfile (${tmpfile})"
-    return $BL64_LIB_ERROR_TASK_FAILED
+    return "$BL64_LIB_ERROR_TASK_FAILED"
   fi
 
   bl64_fs_file_remove "$tmpfile"
@@ -1309,7 +1309,7 @@ function bl64_fs_check_new_file() {
 
   if [[ -d "$file" ]]; then
     bl64_msg_show_check "invalid file destination. Provided path exists and is a directory (${file})"
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
+    return "$BL64_LIB_ERROR_PARAMETER_INVALID"
   fi
 
   return 0
@@ -1339,7 +1339,7 @@ function bl64_fs_check_new_dir() {
 
   if [[ -f "$directory" ]]; then
     bl64_msg_show_check "invalid directory destination. Provided path exists and is a file (${directory})"
-    return $BL64_LIB_ERROR_PARAMETER_INVALID
+    return "$BL64_LIB_ERROR_PARAMETER_INVALID"
   fi
 
   return 0
@@ -1385,10 +1385,10 @@ function bl64_fs_symlink_create() {
     fi
   elif [[ -f "$destination" ]]; then
     bl64_msg_show_lib_error 'invalid destination. It is already present and it is a regular file'
-    return $BL64_LIB_ERROR_TASK_REQUIREMENTS
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
   elif [[ -d "$destination" ]]; then
     bl64_msg_show_lib_error 'invalid destination. It is already present and it is a directory'
-    return $BL64_LIB_ERROR_TASK_REQUIREMENTS
+    return "$BL64_LIB_ERROR_TASK_REQUIREMENTS"
   fi
   bl64_fs_run_ln "$BL64_FS_SET_LN_SYMBOLIC" "$source" "$destination" ||
     return $?
@@ -1470,7 +1470,7 @@ function bl64_fs_file_remove() {
 
     [[ ! -f "$path_current" && ! -L "$path_current" ]] &&
       bl64_msg_show_lib_error 'invalid file type. It must be a regular file or a symlink. No further action taken.' &&
-      return $BL64_LIB_ERROR_TASK_FAILED
+      return "$BL64_LIB_ERROR_TASK_FAILED"
 
     bl64_fs_run_rm \
       "$BL64_FS_SET_RM_FORCE" \
@@ -1566,7 +1566,7 @@ function bl64_fs_file_backup() {
   bl64_msg_show_lib_subtask "backup original file ([${source}]->[${backup}])"
   if ! bl64_fs_run_cp "$source" "$backup"; then
     bl64_msg_show_lib_error 'failed to create file backup'
-    return $BL64_LIB_ERROR_TASK_BACKUP
+    return "$BL64_LIB_ERROR_TASK_BACKUP"
   fi
 
   return 0
@@ -1615,7 +1615,7 @@ function bl64_fs_file_restore() {
     # shellcheck disable=SC2086
     bl64_os_run_cat "$backup" >"$source" &&
       bl64_fs_file_remove "$backup" ||
-      return $BL64_LIB_ERROR_TASK_RESTORE
+      return "$BL64_LIB_ERROR_TASK_RESTORE"
   fi
 }
 

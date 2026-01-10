@@ -57,10 +57,10 @@ function bl64_rxtx_web_get_file() {
     status=$?
   else
     bl64_msg_show_lib_error "no web transfer command was found on the system (wget or curl)" &&
-      return $BL64_LIB_ERROR_APP_MISSING
+      return "$BL64_LIB_ERROR_APP_MISSING"
   fi
 
-  if (( status != 0 )); then
+  if ((status != 0)); then
     bl64_msg_show_lib_error 'file download failed'
   else
     bl64_fs_path_permission_set "$file_mode" "$BL64_VAR_DEFAULT" "$file_user" "$file_group" "$BL64_VAR_OFF" "$destination"
@@ -68,7 +68,7 @@ function bl64_rxtx_web_get_file() {
   fi
 
   bl64_fs_path_recover "$destination" "$status" || return $?
-  return $status
+  return "$status"
 }
 
 #######################################
@@ -121,7 +121,7 @@ function bl64_rxtx_git_get_dir() {
     _bl64_rxtx_git_get_dir_sub "$source_url" "$source_path" "$destination" "$branch"
   fi
   status=$?
-  (( status != 0 )) && bl64_msg_show_lib_error 'directory download failed'
+  ((status != 0)) && bl64_msg_show_lib_error 'directory download failed'
 
   if [[ "$status" == '0' && -d "${destination}/.git" ]]; then
     bl64_msg_show_lib_subtask "remove git metadata (${destination}/.git)"
@@ -132,7 +132,7 @@ function bl64_rxtx_git_get_dir() {
   fi
 
   bl64_fs_path_recover "$destination" "$status" || return $?
-  return $status
+  return "$status"
 }
 
 #######################################
@@ -151,20 +151,20 @@ function bl64_rxtx_git_get_dir() {
 #######################################
 function bl64_rxtx_run_curl() {
   bl64_dbg_lib_show_function "$@"
-  local debug="$BL64_RXTX_SET_CURL_SILENT"
+  local verbose="$BL64_RXTX_SET_CURL_SILENT"
 
   bl64_check_parameters_none "$#" &&
     bl64_check_module 'BL64_RXTX_MODULE' &&
     bl64_check_command "$BL64_RXTX_CMD_CURL" || return $?
 
-  bl64_msg_lib_verbose_is_enabled && ! bl64_lib_mode_cicd_is_enabled && debug=''
-  bl64_dbg_lib_command_is_enabled && debug="$BL64_RXTX_SET_CURL_VERBOSE"
+  bl64_msg_app_run_is_enabled && verbose=''
+  bl64_dbg_lib_command_is_enabled && verbose="$BL64_RXTX_SET_CURL_VERBOSE"
 
   bl64_dbg_lib_trace_start
   # shellcheck disable=SC2086
   "$BL64_RXTX_CMD_CURL" \
     $BL64_RXTX_SET_CURL_SECURE \
-    $debug \
+    $verbose \
     "$@"
   bl64_dbg_lib_trace_stop
 }
@@ -189,7 +189,8 @@ function bl64_rxtx_run_wget() {
     bl64_check_module 'BL64_RXTX_MODULE' &&
     bl64_check_command "$BL64_RXTX_CMD_WGET" || return $?
 
-  bl64_dbg_lib_command_is_enabled && verbose="$BL64_RXTX_SET_WGET_VERBOSE"
+  bl64_dbg_lib_command_is_enabled &&
+    verbose="$BL64_RXTX_SET_WGET_VERBOSE"
 
   bl64_dbg_lib_trace_start
   # shellcheck disable=SC2086
@@ -212,7 +213,7 @@ function _bl64_rxtx_git_get_dir_root() {
   bl64_check_module 'BL64_RXTX_MODULE' || return $?
 
   repo="$($BL64_FS_ALIAS_MKTEMP_DIR)"
-  bl64_check_directory "$repo" 'unable to create temporary git repo' || return $BL64_LIB_ERROR_TASK_TEMP
+  bl64_check_directory "$repo" 'unable to create temporary git repo' || return "$BL64_LIB_ERROR_TASK_TEMP"
 
   git_name="$(bl64_fmt_path_get_basename "$source_url")"
   git_name="${git_name/.git/}"
@@ -226,7 +227,7 @@ function _bl64_rxtx_git_get_dir_root() {
   status=$?
 
   [[ -d "$repo" ]] && bl64_fs_path_remove "$repo" >/dev/null
-  return $status
+  return "$status"
 }
 
 function _bl64_rxtx_git_get_dir_sub() {
@@ -245,7 +246,7 @@ function _bl64_rxtx_git_get_dir_sub() {
 
   repo="$($BL64_FS_ALIAS_MKTEMP_DIR)"
   # shellcheck disable=SC2086
-  bl64_check_directory "$repo" 'unable to create temporary git repo' || return $BL64_LIB_ERROR_TASK_TEMP
+  bl64_check_directory "$repo" 'unable to create temporary git repo' || return "$BL64_LIB_ERROR_TASK_TEMP"
 
   bl64_dbg_lib_show_comments 'Use transition path to get to the final target path'
   source="${repo}/${source_path}"
@@ -261,7 +262,7 @@ function _bl64_rxtx_git_get_dir_sub() {
   status=$?
 
   [[ -d "$repo" ]] && bl64_fs_path_remove "$repo" >/dev/null
-  return $status
+  return "$status"
 }
 
 #######################################
