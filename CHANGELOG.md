@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [23.4.0]
+
+### Added
+
+- core
+  - Added USER, LOGNAME standardization
+- ans
+  - bl64_ans_set_paths: added inventory and temp path support
+  - bl64_ans_set_options
+- ui
+  - Added TUI tools wrapper
+
+### Changed
+
+- ans
+  - \_bl64_ans_harden_ansible: updated parameter list
+  - \_bl64_ans_harden_ansible: renamed to bl64_ans_harden_ansible to allow external usage
+- ui
+  - No longer automatically initialized. Requires setup if using TUI tools
+
 ## [23.3.1]
 
 ### Added

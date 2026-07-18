@@ -2,8 +2,8 @@
 # Library Main
 #
 
-bl64_lib_harden_shopt &&
-  bl64_lib_harden_options ||
+_bl64_lib_harden_shopt &&
+  _bl64_lib_harden_options ||
   exit $?
 
 # Normalize terminal settings
@@ -12,7 +12,7 @@ TERM="${TERM:-vt100}"
 # Normalize paths
 TMPDIR='/tmp'
 
-# Normalize common shell variables
+# Normalize interactive prompts
 PS1="${PS1:-BL64 \u@\H:\w$ }"
 PS2="${PS2:-BL64 > }"
 
@@ -50,7 +50,6 @@ umask -S 'u=rwx,g=,o=' >/dev/null
 [[ -n "${BL64_MSG_MODULE:-}" ]] && { bl64_msg_setup || exit $?; }
 [[ -n "${BL64_BSH_MODULE:-}" ]] && { bl64_bsh_setup || exit $?; }
 [[ -n "${BL64_RND_MODULE:-}" ]] && { bl64_rnd_setup || exit $?; }
-[[ -n "${BL64_UI_MODULE:-}" ]] && { bl64_ui_setup || exit $?; }
 # Initialize modules that do not require setup parameters. OS bound
 [[ -n "${BL64_OS_MODULE:-}" ]] && { bl64_os_setup || exit $?; }
 [[ -n "${BL64_TXT_MODULE:-}" ]] && { bl64_txt_setup || exit $?; }
@@ -66,30 +65,15 @@ umask -S 'u=rwx,g=,o=' >/dev/null
 [[ -n "${BL64_RND_MODULE:-}" ]] && { bl64_rnd_setup || exit $?; }
 [[ -n "${BL64_TM_MODULE:-}" ]] && { bl64_tm_setup || exit $?; }
 
-bl64_lib_script_set_identity
-bl64_dbg_runtime_show
+[[ $(type -t _bl64_dbg_runtime_show) == 'function' ]] && _bl64_dbg_runtime_show
 
-# Check OS compatibility
-if [[ "${BL64_OS_MODULE:-$BL64_VAR_OFF}" == "$BL64_VAR_ON" ]]; then
-  bl64_os_check_compatibility \
-    "${BL64_OS_ALM}"-{8,9,10} \
-    "${BL64_OS_ALP}"-3.{17,18,19,20,21,22,23,24} \
-    "${BL64_OS_AMZ}"-2023 \
-    "${BL64_OS_ARC}"-2025 \
-    "${BL64_OS_CNT}"-{7,8,9,10} \
-    "${BL64_OS_DEB}"-{9,10,11,12,13} \
-    "${BL64_OS_FD}"-{33,34,35,36,37,38,39} \
-    "${BL64_OS_FD}"-{40,41,42,43,44} \
-    "${BL64_OS_KL}"-{2024,2025} \
-    "${BL64_OS_MCOS}"-{12,13,14,15} \
-    "${BL64_OS_OL}"-{7,8,9,10} \
-    "${BL64_OS_OPS}"-{15,16} \
-    "${BL64_OS_RCK}"-{8,9,10} \
-    "${BL64_OS_RHEL}"-{8,9,10} \
-    "${BL64_OS_SLES}"-{15,16} \
-    "${BL64_OS_UB}"-{18,20,21,22,23,24,25,26} ||
-    exit $?
-fi
+_bl64_lib_script_set_identity &&
+  _bl64_lib_check_os_compabitility ||
+  exit $?
+
+# Normalize user identity
+LOGNAME="${LOGNAME:-$(_bl64_lib_helper_id)}"
+USER="${USER:-$LOGNAME}"
 
 # Run as script or sourced library
 if bl64_lib_mode_command_is_enabled; then
